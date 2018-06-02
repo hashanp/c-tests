@@ -246,6 +246,40 @@ huffman_tree_list_t *huffman_tree_list_reduce(huffman_tree_list_t *l) {
   return l;
 }
 
+int depth(huffman_tree_t *t) {
+  if (t->left == NULL) {
+    return 1;
+  }
+  return depth(t->left) + depth(t->right);
+}
+
+#define MAX(a, b) ((a) < (b) ? (b) : (a))
+
+int height(huffman_tree_t *t) {
+  if (t->left == NULL) {
+    return 0;
+  }
+  return 1 + MAX(height(t->left), height(t->right));
+}
+
+int complete(char** map, huffman_tree_t *t, int i, int j) {
+  if (t->left == NULL) {
+    map[i][j] = '\0';
+    map[i][0] = t->letter;
+    return 1;
+  } else {
+    int n1 = complete(map, t->left, i, j + 1);
+    for (int k = i; k < i + n1; k++) {
+      map[k][j] = 'L';
+    }
+    int n2 = complete(map, t->right, i + n1, j + 1);
+    for (int k = i + n1; k < i + n1 + n2; k++) {
+      map[k][j] = 'R';
+    }
+    return n1 + n2;
+  }
+}
+
 /*
  * Accepts a Huffman tree t and a string s and returns a new heap-allocated
  * string containing the encoding of s as per the tree t.
@@ -253,7 +287,29 @@ huffman_tree_list_t *huffman_tree_list_reduce(huffman_tree_list_t *l) {
  * Pre: s only contains characters present in the tree t.
  */
 char *huffman_tree_encode(huffman_tree_t *t, char *s) {
-  return NULL;
+  int d = depth(t);
+  int h = height(t);
+  char **map = malloc(d * sizeof(char*));
+  for (int i = 0; i < d; i++) {
+    map[i] = malloc(h + 2);
+  }
+  complete(map, t, 0, 1);
+  char *v = calloc(MAX_CODE_LENGTH, 1);
+  int len = strlen(s);
+  for (int i = 0; i < len; i++) {
+    char p = s[i];
+    for (int j = 0; j < d; j++) {
+      if (map[j][0] == p) {
+        strcat(v, &map[j][1]);
+        break;
+      }
+    }
+  }
+  for (int i = 0; i < d; i++) {
+    free(map[i]);
+  }
+  free(map);
+  return v;
 }
 
 /*
@@ -263,5 +319,21 @@ char *huffman_tree_encode(huffman_tree_t *t, char *s) {
  * Pre: the code given is decodable using the supplied tree t.
  */
 char *huffman_tree_decode(huffman_tree_t *t, char *code) {
-  return NULL;
+  huffman_tree_t *curr = t;
+  int len = strlen(code);
+  char *str = malloc(MAX_STRING_LENGTH);
+  int j = 0;
+  for (int i = 0; i < len; i++) {
+    if (code[i] == 'L') {
+      curr = curr->left;
+    } else {
+      curr = curr->right;
+    }
+    if (curr->left == NULL) {
+      str[j++] = curr->letter;
+      curr = t;
+    }
+  }
+  str[j] = '\0';
+  return str;
 }
