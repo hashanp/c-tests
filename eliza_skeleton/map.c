@@ -38,6 +38,7 @@ struct map_node *map_insert_internal(struct map_node *node, const char *key, voi
   if (node == NULL) {
     struct map_node *new_node = map_alloc_node();
     new_node->key = clone(key);
+    new_node->value = value;
     *result = 1;
     return new_node;
   }

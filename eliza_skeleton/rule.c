@@ -261,9 +261,10 @@ struct rule *choose_rule(struct list* rules)
 
 
 /* Frees the memory allocated inside a struct rule */
-
+// LEAKFIX
 void destroy_rule(struct rule *rule)
 {
   free(rule->key);
+  free(rule->decomp);
   free(rule->reasmb);
 }
