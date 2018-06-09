@@ -79,7 +79,7 @@ static void print_ordered_insert(void)
 }
 
 
-int main(void)
+int main(int argc, char **argv)
 {
   print_test_data();
   print_unordered_insert();

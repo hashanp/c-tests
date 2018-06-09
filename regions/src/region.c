@@ -127,7 +127,13 @@ void print_regions(FILE *out, list_t *regions)
 //
 void image_fill_region(image_t *image, const region_t *region, uint8_t value)
 {
-  //TODO
+  int x = region->position.x;
+  int y = region->position.y;
+  for (int i = x; i < x + region->extent.width; i++) {
+    for (int j = y; j < y + region->extent.height; j++) {
+      set_pixel(image, i, j, value);
+    }
+  }
 }
 
 // Determines the extent of a region.
@@ -136,7 +142,20 @@ void image_fill_region(image_t *image, const region_t *region, uint8_t value)
 // extent: this will be populated with the width and height of a region.
 void find_extent(extent_t *extent, image_t *image, const point_t *position)
 {
-  //TODO
+  extent->height = 0;
+  extent->width = 0;
+  int x = position->x;
+  int y = position->y;
+  int i = 0;
+  int j = 0;
+  while (get_pixel(image, x, y) == get_pixel(image, x + i, y)) {
+    i++;
+    extent->width++;
+  }
+  while (get_pixel(image, x, y) == get_pixel(image, x, y + j)) {
+    j++;
+    extent->height++;
+  }
 }
 
 // Finds all regions located in the region "current" of "image" and adds them
@@ -144,7 +163,22 @@ void find_extent(extent_t *extent, image_t *image, const point_t *position)
 // comparison function region_compare() is preserved.
 void find_sub_regions(list_t* regions, image_t *image, const region_t *current)
 {
-  //TODO
+  int x = current->position.x;
+  int y = current->position.y;
+  uint8_t col = get_pixel(image, x, y);
+  for (int j = y; j < y + current->extent.height; j++) {
+    for (int i = x; i < x + current->extent.width; i++) {
+      if (get_pixel(image, i, j) != col) {
+        region_t *region = malloc(sizeof(region_t));
+        region->position = (point_t) {i, j};
+        region->depth = current->depth + 1;
+        find_extent(&region->extent, image, &region->position);
+        list_insert_ascending(regions, region);
+        find_sub_regions(regions, image, region);
+        image_fill_region(image, region, col);
+      } 
+    }
+  }
 }
 
 // Renders all regions to an image using the supplied colour_function_t
@@ -152,6 +186,11 @@ void find_sub_regions(list_t* regions, image_t *image, const region_t *current)
 void render_regions(image_t *image, list_t *regions,
                     colour_function_t get_colour)
 {
-  //TODO
+  list_iter iter = list_begin(regions);
+  list_iter end = list_end(regions);
+  while (iter != end) {
+    image_fill_region(image, iter->region, get_colour(iter->region));
+    iter = iter->next;
+  }
 }
 ///////////////////////////////////////////////////////////////////////////////
