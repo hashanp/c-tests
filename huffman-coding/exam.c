@@ -120,6 +120,7 @@ void huffman_tree_list_free(huffman_tree_list_t *l) {
  * Returns 1 if the string s contains the character c and 0 if it does not.
  */
 int contains(char *s, char c) {
+  assert(s != NULL);
   while (*s != '\0') {
     if (*s == c) {
       return 1;
@@ -133,6 +134,7 @@ int contains(char *s, char c) {
  * Returns the number of occurrences of c in s.
  */
 int frequency(char *s, char c) {
+  assert(s != NULL);
   int count = 0;
   while (*s != '\0') {
     if (*s == c) {
@@ -151,6 +153,7 @@ int frequency(char *s, char c) {
  *      characters.
  */
 char *nub(char *s) {
+  assert(s != NULL);
   int count = 0;
   char *t = malloc(MAX_STRING_LENGTH);
   while (*s != '\0') {
@@ -181,7 +184,9 @@ char *nub(char *s) {
  */
 huffman_tree_list_t *huffman_tree_list_add(huffman_tree_list_t *l,
                                             huffman_tree_t *t) {
+  assert(t != NULL);
   huffman_tree_list_t *nova = malloc(sizeof(huffman_tree_t));
+  assert(nova != NULL);
   nova->tree = t;
   if (l == NULL || l->tree->count > t->count) {
     nova->next = l;
@@ -207,9 +212,12 @@ huffman_tree_list_t *huffman_tree_list_add(huffman_tree_list_t *l,
  *        trees it contains.
  */
 huffman_tree_list_t *huffman_tree_list_build(char *s, char *t) {
+  assert(s != NULL);
+  assert(t != NULL);
   huffman_tree_list_t *l = NULL;
   for (int i = 0; i < strlen(t); i++) {
     huffman_tree_t *v = malloc(sizeof(huffman_tree_t));
+    assert(v != NULL);
     char p = t[i];
     v->count = frequency(s, p);
     v->letter = p;
@@ -229,10 +237,12 @@ huffman_tree_list_t *huffman_tree_list_build(char *s, char *t) {
  * Post:  The resuling list contains a single, correctly-formed Huffman tree.
  */
 huffman_tree_list_t *huffman_tree_list_reduce(huffman_tree_list_t *l) {
+  assert(l != NULL);
   while (l->next != NULL) {
     huffman_tree_t *t1 = l->tree;
     huffman_tree_t *t2 = l->next->tree;
     huffman_tree_t *nova = malloc(sizeof(huffman_tree_t));
+    assert(nova != NULL);
     nova->count = t1->count + t2->count;
     nova->letter = '\0';
     nova->left = t1;
@@ -247,6 +257,7 @@ huffman_tree_list_t *huffman_tree_list_reduce(huffman_tree_list_t *l) {
 }
 
 int depth(huffman_tree_t *t) {
+  assert(t != NULL);
   if (t->left == NULL) {
     return 1;
   }
@@ -256,6 +267,7 @@ int depth(huffman_tree_t *t) {
 #define MAX(a, b) ((a) < (b) ? (b) : (a))
 
 int height(huffman_tree_t *t) {
+  assert(t != NULL);
   if (t->left == NULL) {
     return 0;
   }
@@ -263,6 +275,8 @@ int height(huffman_tree_t *t) {
 }
 
 int complete(char** map, huffman_tree_t *t, int i, int j) {
+  assert(map != NULL);
+  assert(t != NULL);
   if (t->left == NULL) {
     map[i][j] = '\0';
     map[i][0] = t->letter;
@@ -287,14 +301,18 @@ int complete(char** map, huffman_tree_t *t, int i, int j) {
  * Pre: s only contains characters present in the tree t.
  */
 char *huffman_tree_encode(huffman_tree_t *t, char *s) {
+  assert(t != NULL);
+  assert(s != NULL);
   int d = depth(t);
   int h = height(t);
   char **map = malloc(d * sizeof(char*));
+  assert(map != NULL);
   for (int i = 0; i < d; i++) {
     map[i] = malloc(h + 2);
   }
   complete(map, t, 0, 1);
   char *v = calloc(MAX_CODE_LENGTH, 1);
+  assert(v != NULL);
   int len = strlen(s);
   for (int i = 0; i < len; i++) {
     char p = s[i];
@@ -319,9 +337,12 @@ char *huffman_tree_encode(huffman_tree_t *t, char *s) {
  * Pre: the code given is decodable using the supplied tree t.
  */
 char *huffman_tree_decode(huffman_tree_t *t, char *code) {
+  assert(t != NULL);
+  assert(code != NULL);
   huffman_tree_t *curr = t;
   int len = strlen(code);
   char *str = malloc(MAX_STRING_LENGTH);
+  assert(str != NULL);
   int j = 0;
   for (int i = 0; i < len; i++) {
     if (code[i] == 'L') {
