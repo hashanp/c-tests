@@ -91,7 +91,10 @@ void list_apply_function(list_t *list, region_function_t f)
 // Inserts "region" into "list" before the element pointed to by "iter".
 void list_insert(list_iter iter, region_t *region)
 {
+  assert(iter != NULL);
+  assert(region != NULL);
   list_elem_t *v = malloc(sizeof(list_elem_t));
+  assert(v != NULL);
   v->region = region;
   v->next = iter;
   v->prev = iter->prev;
@@ -104,6 +107,8 @@ void list_insert(list_iter iter, region_t *region)
 // region_compare().
 void list_insert_ascending(list_t *list, region_t *region)
 {
+  assert(list != NULL);
+  assert(region != NULL);
   list_iter curr = list_begin(list);
   list_iter end = list_end(list);
   while (curr != end && !region_compare(region, curr->region)) {
@@ -116,6 +121,7 @@ void list_insert_ascending(list_t *list, region_t *region)
 // contained region_t elements.
 void list_destroy(list_t *list)
 {
+  assert(list != NULL);
   list_iter iter = list->header;
   while (iter != NULL) {
     list_iter next = iter->next;

@@ -107,6 +107,8 @@ void region_destroy(region_t *region)
 // Ordering of the position comparison is [y, x].
 int region_compare(const region_t *r1, const region_t *r2)
 {
+  assert(r1 != NULL);
+  assert(r2 != NULL);
   return point_compare_less(&r1->position, &r2->position);
 }
 
@@ -115,6 +117,8 @@ int region_compare(const region_t *r1, const region_t *r2)
 // to the supplied FILE*
 void print_regions(FILE *out, list_t *regions)
 {
+  assert(out != NULL);
+  assert(regions != NULL);
   list_elem_t *v = regions->header->next;
   while (v != regions->footer) {
     print_region(out, v->region);
@@ -127,6 +131,8 @@ void print_regions(FILE *out, list_t *regions)
 //
 void image_fill_region(image_t *image, const region_t *region, uint8_t value)
 {
+  assert(image != NULL);
+  assert(region != NULL);
   int x = region->position.x;
   int y = region->position.y;
   for (int i = x; i < x + region->extent.width; i++) {
@@ -142,6 +148,9 @@ void image_fill_region(image_t *image, const region_t *region, uint8_t value)
 // extent: this will be populated with the width and height of a region.
 void find_extent(extent_t *extent, image_t *image, const point_t *position)
 {
+  assert(extent != NULL);
+  assert(image != NULL);
+  assert(position != NULL);
   extent->height = 0;
   extent->width = 0;
   int x = position->x;
@@ -163,6 +172,9 @@ void find_extent(extent_t *extent, image_t *image, const point_t *position)
 // comparison function region_compare() is preserved.
 void find_sub_regions(list_t* regions, image_t *image, const region_t *current)
 {
+  assert(regions != NULL);
+  assert(image != NULL);
+  assert(current != NULL);
   int x = current->position.x;
   int y = current->position.y;
   uint8_t col = get_pixel(image, x, y);
@@ -170,6 +182,7 @@ void find_sub_regions(list_t* regions, image_t *image, const region_t *current)
     for (int i = x; i < x + current->extent.width; i++) {
       if (get_pixel(image, i, j) != col) {
         region_t *region = malloc(sizeof(region_t));
+        assert(region != NULL);
         region->position = (point_t) {i, j};
         region->depth = current->depth + 1;
         find_extent(&region->extent, image, &region->position);
@@ -186,6 +199,9 @@ void find_sub_regions(list_t* regions, image_t *image, const region_t *current)
 void render_regions(image_t *image, list_t *regions,
                     colour_function_t get_colour)
 {
+  assert(image != NULL);
+  assert(regions != NULL);
+  assert(get_colour != NULL);
   list_iter iter = list_begin(regions);
   list_iter end = list_end(regions);
   while (iter != end) {
